@@ -1,0 +1,10 @@
+qiskit
+qiskit-aer
+qiskit-ibm-runtime
+networkx
+matplotlib
+numpy
+statistics
+configparser
+pickle
+alive-progress
