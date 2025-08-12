@@ -13,6 +13,7 @@ from qiskit import (QuantumCircuit, QuantumRegister, ClassicalRegister)
 from qiskit.visualization import plot_histogram
 from qiskit_aer.noise import NoiseModel
 from qiskit_aer import AerSimulator
+from qiskit import transpile
 
 from qiskit.qasm3 import dump, dumps
 
@@ -41,8 +42,9 @@ def make_circuit(graph, color_number, method, data, grover_iterations=-1):
     if grover_iterations == -1:
         all_colorings = 2 ** (qn * len(conf["graph"]))
         correct_colors = len(cpu_color_graph(conf["graph"], conf["k"]))
+        incorrect_colors = all_colorings - correct_colors
 
-        grover_iterations = floor(pi/4 * sqrt(all_colorings / correct_colors))
+        grover_iterations = floor(pi/4 * sqrt(all_colorings / incorrect_colors))
     data["grover_iterations"] = grover_iterations
     print("Grover iterations:", grover_iterations)
     # inv_col = 2 ** qn - k
@@ -60,15 +62,11 @@ def make_circuit(graph, color_number, method, data, grover_iterations=-1):
     for i in range(qn*n):
         qc.h(i)
 
-    qc.x(num_qubits - 1)
-    qc.h(num_qubits - 1)
-
     init(qc, problem)
 
     for i_grv in range(grover_iterations):
         problem = make_problem(graph, k)  # new history
-        qv = compose(qc, problem)
-        qc.mcx(qv, num_qubits - 1)
+        compose(qc, problem)
         decompose(problem)
         diffusion(qc, problem)
 
@@ -145,6 +143,8 @@ def configure(args_kw, data):
 
 def run_circ(qc, conf, data):
     global results
+    # transpile your circuit to basis gates supported by Aer
+    qc = transpile(qc, basis_gates=['u3', 'cx'], optimization_level=1)
     
     if conf["run"] == "local":  # local sim
         if conf["quantum_sim"]:
@@ -431,7 +431,7 @@ def simulation_details(filename, k):
         system = s["system"]
         w = s["width"]
         d = s["depth"]
-        anc = s["width"] - ceil(log2(k)) * n - 1
+        anc = w - ceil(log2(k)) * n
         data[system] = {"width": w,
                         "depth": d,
                         "complexity": w * d,

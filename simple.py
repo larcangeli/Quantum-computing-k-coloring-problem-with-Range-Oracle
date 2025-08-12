@@ -6,22 +6,23 @@ from problem import (n, qn,
 
 
 def simple_init(qc, problem):
-    for i in range(problem_comp_num(problem)):
-        qc.x(ancilla_index(problem) + i)
+    # no ancilla initialization in ancilla-free design
+    return
 
 
 def simple_qubit_count(problem):
-    return (n(problem) * qn(problem)
-            + problem_comp_num(problem) + 1)
+    return (n(problem) * qn(problem))
 
 
 def simple_compose(qc, problem):
     components = get_greedy_components_list(qc, problem)
-    for i in range(len(components)):
-        components[i](ancilla_index(problem) + i)
-        history_add(problem,
-                    lambda c=components[i], x=ancilla_index(problem)+i: c(x))
-    return [ancilla_index(problem) + i for i in range(len(components))]
+    for builder in components:
+        try:
+            builder(None)
+        except TypeError:
+            builder()
+        history_add(problem, (lambda b=builder: (lambda: (b(None) if (lambda: True)() else None)))())
+    return None
 
 
 simple_system = (simple_qubit_count, simple_init, simple_compose)

@@ -72,7 +72,7 @@ def multi_control_z(nqubits):
 
     main_circuit.append(gate_multi_z.to_gate(), range(nqubits))
     '''
-    circuit=QuantumCircuit(nqubits,name=' CZ (%d)' %(nqubits))
+    circuit=QuantumCircuit(nqubits)
     circuit.h(nqubits-1)
     gate = MCXGate(nqubits-1)
     circuit.append(gate, range(nqubits))

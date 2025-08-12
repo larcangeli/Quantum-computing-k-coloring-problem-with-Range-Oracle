@@ -5,14 +5,12 @@ from problem import (n, qn, ancilla_index, problem_comp_num,
 
 
 def minimal_init(qc, problem):
-    qc.x(ancilla_index(problem))
-    qc.x(ancilla_index(problem) + 1)
+    # no ancilla initialization in ancilla-free design
+    return
 
 
 def minimal_qubit_count(problem):
-    return (n(problem) * qn(problem)
-            + ceil(log2(problem_comp_num(problem))) + 1
-            + 1)
+    return (n(problem) * qn(problem))
 
 
 def put(qc, problem, i, components):
@@ -102,7 +100,13 @@ def setup(qc, problem, components):
 
 def minimal_compose(qc, problem):
     components = get_greedy_components_list(qc, problem)
-    return setup(qc, problem, components)
+    for builder in components:
+        try:
+            builder(None)
+        except TypeError:
+            builder()
+        history_add(problem, (lambda b=builder: (lambda: (b(None) if (lambda: True)() else None)))())
+    return None
 
 
 minimal_system = (minimal_qubit_count, minimal_init, minimal_compose)
