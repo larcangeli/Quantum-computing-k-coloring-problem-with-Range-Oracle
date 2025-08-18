@@ -316,6 +316,39 @@ def invalid_color_less_than(qc, problem, color, i, dest, number, name=None):
             pass
 
 
+def invalid_color_greater_than(qc, problem, color, i, dest):
+    """
+    Mark `dest` ancilla qubit if node `i` has an invalid color (color >= k(problem)).
+    """
+    a = problem.node_qubits(problem, i)
+    nqubits = problem.qn(problem)
+
+    #Binary representation of the number
+    num_binary = bin(color)[2:]
+
+    if num_binary[0] == '0':
+        qc.cx(a[-1], dest)
+        qc.x(a[-1])
+
+    # For loop on the remaining digits
+    for position1, value in enumerate(num_binary[1:]):
+        position = position1 + 1
+        relevant_qubits = a[-(position+1):]
+
+
+        if value == '0':
+            print("flipping at position %d ",  position)
+            qc.mcx(relevant_qubits, dest)
+            qc.x(a[-(position + 1)])
+
+
+    for position, value in enumerate(num_binary):
+        # Apply X gates to qubits in position of bits with a 0 value
+        if value == '0':
+            a[-(position + 1)]
+        else:
+            pass
+
 #################################################
 ###### ORACLES BUILT WITH LESS-THAN ORACLE ######
 #################################################
@@ -358,38 +391,6 @@ def my_oracle_greater_than(number, nqubits, name=None):
             pass
     
     return circuit
-
-
-def invalid_color_greater_than(qc, problem, color, i, dest, number, nqubits, name=None):
-    a = problem.node_qubits(problem, i)
-
-    #Binary representation of the number
-    num_binary = bin(color)[2:]
-
-    
-    if num_binary[0] == '0':
-        qc.cx(a[0], dest)
-        qc.x(nqubits*i-1)
-
-
-    
-    # For loop on the remaining digits
-    for position1, value in enumerate(num_binary[1:]):
-        position = position1 + 1
-
-        if value == '0':
-            print("flipping at position %d ",  position)
-            qc.mcx(a, dest)
-            qc.x((nqubits*i-1)-position)
-
-
-    for position, value in enumerate(num_binary):
-        # Apply X gates to qubits in position of bits with a 0 value
-        if value == '0':
-            qc.x((nqubits*i-1)-position)
-        else:
-            pass
-
 
 def oracle_greater_than(number, nqubits, name=None):
     '''

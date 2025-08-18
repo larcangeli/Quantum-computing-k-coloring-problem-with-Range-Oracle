@@ -107,7 +107,7 @@ def invalid_color(qc, problem, color, i, dest):
     for j in range(qnum):
         if x_gates[j]:
             qc.x(a[0] + j)
-
+'''
 def invalid_color_new(qc, problem, color, i, dest=None):
     """
     Phase flip for invalid color on node i.
@@ -132,7 +132,7 @@ def invalid_color_new(qc, problem, color, i, dest=None):
         if do_x:
             qc.x(a[j])
 
-
+'''
 def diffusion(qc, problem):
     for i in range(ancilla_index(problem)-1):
         qc.h(i)
@@ -143,7 +143,7 @@ def diffusion(qc, problem):
     for i in range(ancilla_index(problem)-1):
         qc.x(i)
         qc.h(i)
-
+'''
 def diffusion_data_qubits(qc, problem):
     """
     Ancilla-free diffusion applied to the data register only (the first n*qn qubits).
@@ -161,7 +161,7 @@ def diffusion_data_qubits(qc, problem):
     for q in data_qubits:
         qc.x(q)
         qc.h(q)
-
+'''
 
 def get_components_list(qc, problem):
     components = []
