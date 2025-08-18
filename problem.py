@@ -52,7 +52,7 @@ def problem_comp_num(problem):
     return (invalid_colors(problem) * n(problem)
             + len(graph(problem).edges))
 
-''' old comparator
+
 def comparator(qc, problem, i, j, f):
     if i > j:
         i, j = j, i
@@ -65,8 +65,8 @@ def comparator(qc, problem, i, j, f):
     for i, j in reversed(list(zip(a, b))):
         qc.x(j)
         qc.cx(i, j)
-'''
 
+'''
 def oracle_same_color_penalty(qc, problem, i, j, f):
     """
     Apply a phase penalty to configurations where nodes i,j have same color.
@@ -93,10 +93,10 @@ def oracle_same_color_penalty(qc, problem, i, j, f):
     for qi, qj in reversed(list(zip(a, b))):
         qc.x(qj)
         qc.cx(qi, qj)
-
-
 '''
-def invalid_color_old(qc, problem, color, i, dest):
+
+
+def invalid_color(qc, problem, color, i, dest):
     a = node_qubits(problem, i)
     x_gates = [not bool(int(x)) for x in bin(color)[2:]]
     qnum = len(x_gates)
@@ -107,12 +107,10 @@ def invalid_color_old(qc, problem, color, i, dest):
     for j in range(qnum):
         if x_gates[j]:
             qc.x(a[0] + j)
-'''
 
-
-def invalid_color(qc, problem, color, i, dest=None):
+def invalid_color_new(qc, problem, color, i, dest=None):
     """
-    Ancilla-free phase flip for invalid color on node i.
+    Phase flip for invalid color on node i.
     - We flip X on bits that should be 0 in the matching color (so that the target pattern is all-ones).
     - Then apply a multi-controlled phase (MCZ) across the node's color qubits.
     - Then uncompute the X flips.
@@ -134,7 +132,7 @@ def invalid_color(qc, problem, color, i, dest=None):
         if do_x:
             qc.x(a[j])
 
-''' old diffusion
+
 def diffusion(qc, problem):
     for i in range(ancilla_index(problem)-1):
         qc.h(i)
@@ -145,8 +143,8 @@ def diffusion(qc, problem):
     for i in range(ancilla_index(problem)-1):
         qc.x(i)
         qc.h(i)
-'''
-def diffusion(qc, problem):
+
+def diffusion_data_qubits(qc, problem):
     """
     Ancilla-free diffusion applied to the data register only (the first n*qn qubits).
     """
@@ -164,7 +162,7 @@ def diffusion(qc, problem):
         qc.x(q)
         qc.h(q)
 
-'''
+
 def get_components_list(qc, problem):
     components = []
     for color in range(k(problem), 2 ** qn(problem)):
@@ -177,27 +175,13 @@ def get_components_list(qc, problem):
             lambda x, i=i, j=j:
             comparator(qc, problem, i, j, x))
     return components
-'''
-
-def get_components_list(qc, problem):
-    components = []
-    for color in range(k(problem), 2 ** qn(problem)):
-        for i in range(n(problem)):
-            components.append(
-                lambda x, i=i, color=color:
-                invalid_color(qc, problem, color, i, x))
-    for i, j in graph(problem).edges:
-        components.append(
-            lambda x, i=i, j=j:
-            oracle_same_color_penalty(qc, problem, i, j, x))
-    return components
 
 
 def make_components(qc, problem):
     arcs = [[] for i in range(n(problem))]
     for i, j in graph(problem).edges:
         def c(x, i=i, j=j):
-            return oracle_same_color_penalty(qc, problem, i, j, x)
+            return comparator(qc, problem, i, j, x)
         arcs[i].append(((i, j), c))
         arcs[j].append(((i, j), c))
 

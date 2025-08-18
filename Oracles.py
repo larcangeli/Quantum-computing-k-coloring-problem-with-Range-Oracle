@@ -2,6 +2,8 @@
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit.library import MCXGate, UnitaryGate
 
+import problem as problem
+
 import numpy as np
 
 def diffuser(n_qubits):
@@ -275,6 +277,44 @@ def oracle_less_than_sandwich_v1(number: int, nqubits: int) -> QuantumCircuit:
             
     return circuit
 
+def invalid_color_less_than(qc, problem, color, i, dest, number, name=None):
+    a = problem.node_qubits(problem, i)
+    nqubits = problem.qn(problem)
+    #Binary representation of the number
+    num_binary = bin(color)[2:]
+
+    
+    if num_binary[0] == '1':
+        qc.x(nqubits*i-1)
+        qc.cx(a[0], dest)
+        qc.x(nqubits*i-1)
+    else :
+        qc.x(nqubits*i-1)
+
+
+    
+    # For loop on the remaining digits
+    for position1, value in enumerate(num_binary[1:]):
+        position = position1 + 1
+
+        if value == '1':
+            print("flipping at position %d ",  position)
+            qc.x((nqubits*i-1)-position)
+            qc.mcx(a, dest)
+            qc.x((nqubits*i-1)-position)
+        else:
+            # If the digit is 0
+            # Just apply a X gate
+            qc.x((nqubits*i-1)-position)
+
+
+    for position, value in enumerate(num_binary):
+        # Apply X gates to qubits in position of bits with a 0 value
+        if value == '0':
+            qc.x((nqubits*i-1)-position)
+        else:
+            pass
+
 
 #################################################
 ###### ORACLES BUILT WITH LESS-THAN ORACLE ######
@@ -318,6 +358,38 @@ def my_oracle_greater_than(number, nqubits, name=None):
             pass
     
     return circuit
+
+
+def invalid_color_greater_than(qc, problem, color, i, dest, number, nqubits, name=None):
+    a = problem.node_qubits(problem, i)
+
+    #Binary representation of the number
+    num_binary = bin(color)[2:]
+
+    
+    if num_binary[0] == '0':
+        qc.cx(a[0], dest)
+        qc.x(nqubits*i-1)
+
+
+    
+    # For loop on the remaining digits
+    for position1, value in enumerate(num_binary[1:]):
+        position = position1 + 1
+
+        if value == '0':
+            print("flipping at position %d ",  position)
+            qc.mcx(a, dest)
+            qc.x((nqubits*i-1)-position)
+
+
+    for position, value in enumerate(num_binary):
+        # Apply X gates to qubits in position of bits with a 0 value
+        if value == '0':
+            qc.x((nqubits*i-1)-position)
+        else:
+            pass
+
 
 def oracle_greater_than(number, nqubits, name=None):
     '''
