@@ -107,6 +107,14 @@ def invalid_color(qc, problem, color, i, dest):
     for j in range(qnum):
         if x_gates[j]:
             qc.x(a[0] + j)
+
+def invalid_color_greater_than(qc, problem, color, i, dest):
+    """
+    New version of ancilla marking for invalid colors on node i (using a greater-than oracle).
+    """
+    oracles.invalid_color_greater_than(qc, problem, color, i, dest)
+
+
 '''
 def invalid_color_new(qc, problem, color, i, dest=None):
     """
@@ -169,7 +177,7 @@ def get_components_list(qc, problem):
         for i in range(n(problem)):
             components.append(
                 lambda x, i=i, color=color:
-                invalid_color(qc, problem, color, i, x))
+                invalid_color_greater_than(qc, problem, color, i, x))
     for i, j in graph(problem).edges:
         components.append(
             lambda x, i=i, j=j:
@@ -187,7 +195,7 @@ def make_components(qc, problem):
 
     colors = [[((i,),
                 lambda x, i=i, color=color:
-                invalid_color(qc, problem, color, i, x))
+                invalid_color_greater_than(qc, problem, color, i, x))
                for color in range(k(problem), 2 ** qn(problem))]
               for i in range(n(problem))]
     return arcs, colors
