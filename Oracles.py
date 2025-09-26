@@ -2,7 +2,7 @@
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit.library import MCXGate, UnitaryGate
 
-import problem as problem
+import problem as problem_lib
 
 import numpy as np
 
@@ -278,8 +278,8 @@ def oracle_less_than_sandwich_v1(number: int, nqubits: int) -> QuantumCircuit:
     return circuit
 
 def invalid_color_less_than(qc, problem, color, i, dest, number, name=None):
-    a = problem.node_qubits(problem, i)
-    nqubits = problem.qn(problem)
+    a = problem_lib.node_qubits(problem, i)
+    nqubits = problem_lib.qn(problem)
     #Binary representation of the number
     num_binary = bin(color)[2:]
 
@@ -320,9 +320,9 @@ def invalid_color_greater_than(qc, problem, color, i, dest):
     """
     Mark `dest` ancilla qubit if node `i` has an invalid color (color >= k(problem)).
     """
-    a = problem.node_qubits(problem, i)
-    nqubits = problem.qn(problem)
-
+    a = problem_lib.node_qubits(problem, i)
+    nqubits = problem_lib.qn(problem)
+    color = color - 1;
     #Binary representation of the number
     num_binary = bin(color)[2:]
 
@@ -337,7 +337,7 @@ def invalid_color_greater_than(qc, problem, color, i, dest):
 
 
         if value == '0':
-            print("flipping at position %d ",  position)
+            #print("flipping at position %d ",  position)
             qc.mcx(relevant_qubits, dest)
             qc.x(a[-(position + 1)])
 

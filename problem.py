@@ -1,5 +1,4 @@
 from math import ceil, log2
-from platform import node
 import Oracles as oracles
 
 
@@ -47,11 +46,15 @@ def ancilla_index(problem):
 def invalid_colors(problem):
     return 2 ** qn(problem) - k(problem)
 
-
+'''
 def problem_comp_num(problem):
     return (invalid_colors(problem) * n(problem)
             + len(graph(problem).edges))
-
+'''
+#New version using oracle greater-than (no need to create one component for each invalid color, just one per node)
+def problem_comp_num(problem):
+    return (n(problem)
+            + len(graph(problem).edges))
 
 def comparator(qc, problem, i, j, f):
     if i > j:
@@ -66,35 +69,6 @@ def comparator(qc, problem, i, j, f):
         qc.x(j)
         qc.cx(i, j)
 
-'''
-def oracle_same_color_penalty(qc, problem, i, j, f):
-    """
-    Apply a phase penalty to configurations where nodes i,j have same color.
-    Ancilla-free: compute XOR into b, flip b to turn all-zero -> all-ones,
-    apply multi-control-Z on b, then uncompute.
-    NOTE: `f` argument kept for compatibility but not used.
-    """
-    
-    a = node_qubits(problem, i)
-    b = node_qubits(problem, j)
-
-    for qi, qj in zip(a, b):
-        qc.cx(qi, qj)
-        qc.x(qj)
-    
-    for qbj in b:
-        qc.x(qbj)
-
-    qc.append(oracles.multi_control_z(len(b)).to_gate(), b)
-
-    for qbj in b:
-        qc.x(qbj)
-
-    for qi, qj in reversed(list(zip(a, b))):
-        qc.x(qj)
-        qc.cx(qi, qj)
-'''
-
 
 def invalid_color(qc, problem, color, i, dest):
     a = node_qubits(problem, i)
@@ -108,6 +82,8 @@ def invalid_color(qc, problem, color, i, dest):
         if x_gates[j]:
             qc.x(a[0] + j)
 
+        
+# New version of ancilla marking for invalid colors on node i (using a greater-than oracle).
 def invalid_color_greater_than(qc, problem, color, i, dest):
     """
     New version of ancilla marking for invalid colors on node i (using a greater-than oracle).
@@ -115,32 +91,6 @@ def invalid_color_greater_than(qc, problem, color, i, dest):
     oracles.invalid_color_greater_than(qc, problem, color, i, dest)
 
 
-'''
-def invalid_color_new(qc, problem, color, i, dest=None):
-    """
-    Phase flip for invalid color on node i.
-    - We flip X on bits that should be 0 in the matching color (so that the target pattern is all-ones).
-    - Then apply a multi-controlled phase (MCZ) across the node's color qubits.
-    - Then uncompute the X flips.
-    NOTE: `dest` argument kept for compatibility but not used (we don't mark ancilla).
-    """
-    a = node_qubits(problem, i)
-    qnum = len(a)
-    # create bit pattern of the color with leading zeros up to qnum
-    binstr = format(color, 'b').zfill(qnum)
-    x_gates = [bit == '0' for bit in binstr] 
-
-    for j, do_x in enumerate(x_gates):
-        if do_x:
-            qc.x(a[j])
-
-    qc.append(oracles.multi_control_z(len(a)).to_gate(), a)
-
-    for j, do_x in enumerate(x_gates):
-        if do_x:
-            qc.x(a[j])
-
-'''
 def diffusion(qc, problem):
     for i in range(ancilla_index(problem)-1):
         qc.h(i)
@@ -151,33 +101,15 @@ def diffusion(qc, problem):
     for i in range(ancilla_index(problem)-1):
         qc.x(i)
         qc.h(i)
+
 '''
-def diffusion_data_qubits(qc, problem):
-    """
-    Ancilla-free diffusion applied to the data register only (the first n*qn qubits).
-    """
-    data_qubits = list(range(ancilla_index(problem)))
-    if not data_qubits:
-        return
-
-    for q in data_qubits:
-        qc.h(q)
-        qc.x(q)
-
-    qc.append(oracles.multi_control_z(len(data_qubits)).to_gate(), data_qubits)
-
-    for q in data_qubits:
-        qc.x(q)
-        qc.h(q)
-'''
-
 def get_components_list(qc, problem):
     components = []
     for color in range(k(problem), 2 ** qn(problem)):
         for i in range(n(problem)):
             components.append(
                 lambda x, i=i, color=color:
-                invalid_color_greater_than(qc, problem, color, i, x))
+                invalid_color(qc, problem, color, i, x))
     for i, j in graph(problem).edges:
         components.append(
             lambda x, i=i, j=j:
@@ -195,11 +127,40 @@ def make_components(qc, problem):
 
     colors = [[((i,),
                 lambda x, i=i, color=color:
-                invalid_color_greater_than(qc, problem, color, i, x))
+                invalid_color(qc, problem, color, i, x))
                for color in range(k(problem), 2 ** qn(problem))]
               for i in range(n(problem))]
     return arcs, colors
+'''
 
+#New version using greater-than oracle
+def get_components_list(qc, problem):
+    components = []
+    for i in range(n(problem)):
+        components.append(
+            lambda x, i=i:
+            invalid_color_greater_than(qc, problem, k(problem), i, x))
+    for i, j in graph(problem).edges:
+        components.append(
+            lambda x, i=i, j=j:
+            comparator(qc, problem, i, j, x))
+    return components
+
+#New version using greater-than oracle
+def make_components(qc, problem):
+    arcs = [[] for i in range(n(problem))]
+    for i, j in graph(problem).edges:
+        def c(x, i=i, j=j):
+            return comparator(qc, problem, i, j, x)
+        arcs[i].append(((i, j), c))
+        arcs[j].append(((i, j), c))
+
+    # Single component per node instead of per invalid color
+    colors = [[((i,),
+                lambda x, i=i:
+                invalid_color_greater_than(qc, problem, k(problem), i, x))]
+              for i in range(n(problem))]
+    return arcs, colors
 
 def arcs_comp(components):
     return components[0]
