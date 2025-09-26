@@ -147,7 +147,3 @@ The Range Oracle integrates seamlessly with Grover's algorithm to:
 ## License
 
 This project is open-source and available under the MIT License. The Range Oracle innovation is freely available for research and educational purposes.
-
----
-
-*This repository represents a significant advancement in quantum graph coloring algorithms through the innovative use of Range Oracle logic for complexity reduction in invalid color detection.*
