@@ -201,7 +201,7 @@ def plot_figures(measures, figsize):
     fig = plot_histogram(measures, figsize=figsize)
     fig.tight_layout()
     fig.savefig("measures_new.png")
-    # plt.show()
+    plt.show()
     plt.close(fig)
 
 

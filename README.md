@@ -53,6 +53,12 @@ The breakthrough is implemented in the `invalid_color_greater_than` function whi
 3. Marks the ancilla qubit when the node's color value exceeds the valid range
 4. Eliminates the need for separate validation of each invalid color value
 
+## 📚 Full Documentation
+
+The complete report, featuring the detailed analysis, quantum circuit diagrams, and full methodology, is available in the `/docs` folder.
+
+[Download the Full Report (PDF)](./docs/Quantum_K_coloring_range_oracle.pdf)
+
 ## Authors and Acknowledgments
 
 The foundational quantum computing functions in this repository build upon the excellent work of **Oscar-Belletti** and **JSRivero**. However, the core innovation—the **Range Oracle approach with greater-than logic for complexity reduction**—represents original research and development in collaboration with professor Elisabetta Di Nitto and the co-professor Simone Reale.
