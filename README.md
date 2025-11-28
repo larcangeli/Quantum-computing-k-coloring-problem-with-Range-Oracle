@@ -8,7 +8,7 @@ This repository presents an innovative solution to the **k-coloring problem** in
 
 The repository contains code implemented primarily in **Jupyter Notebooks** and **Python**, enabling users to simulate and analyze this advanced quantum algorithm approach.
 
-## Revolutionary Approach: Range Oracle Solution
+## Insightful Approach: Range Oracle Solution
 
 ### The Problem with Traditional Methods
 Traditional quantum approaches to the k-coloring problem require multiple conditional checks for each vertex-color combination, leading to:
@@ -16,7 +16,7 @@ Traditional quantum approaches to the k-coloring problem require multiple condit
 - Increased gate count due to repetitive validation operations
 - Scalability limitations when dealing with larger color sets
 
-### Our Breakthrough Solution
+### Our Solution
 This repository implements a **Range Oracle** that leverages greater-than oracle logic to:
 - **Dramatically reduce complexity** by using a single range comparison per node instead of multiple individual color checks
 - **Eliminate redundant validation** through efficient greater-than oracle operations
@@ -55,7 +55,7 @@ The breakthrough is implemented in the `invalid_color_greater_than` function whi
 
 ## Authors and Acknowledgments
 
-The foundational quantum computing functions in this repository build upon the excellent work of **Oscar-Belletti** and **JSRivero**. However, the core innovation—the **Range Oracle approach with greater-than logic for complexity reduction**—represents original research and development.
+The foundational quantum computing functions in this repository build upon the excellent work of **Oscar-Belletti** and **JSRivero**. However, the core innovation—the **Range Oracle approach with greater-than logic for complexity reduction**—represents original research and development in collaboration with professor Elisabetta Di Nitto and the co-professor Simone Reale.
 
 This breakthrough in using range-based comparisons to mark ancilla qubits instead of performing multiple individual color checks is a novel contribution to quantum graph coloring algorithms.
 
