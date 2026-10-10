@@ -150,6 +150,9 @@ The Range Oracle integrates seamlessly with Grover's algorithm to:
 - **Qiskit Framework**: [Qiskit Documentation](https://qiskit.org/documentation/) for quantum programming tools
 - **Graph Coloring Theory**: Classical approaches that inspired this quantum innovation
 
-## License
+## License & Credits
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
 
-This project is open-source and available under the MIT License. The Range Oracle innovation is freely available for research and educational purposes.
+- **Oscar Belletti** (LGPL-2.1): diffuser helpers and circuit building blocks.
+- **J. S. Rivero / Less-than-oracle** (GPL-3.0): base less-than oracle and multi-controlled gate helpers.
+- **Lorenzo Arcangeli** (GPL-3.0): Range Oracle implementation, custom adaptations.
